@@ -1,0 +1,4 @@
+   Compiling mini_grep v0.1.0 (/Users/jiahe/Desktop/learn/rust_learn/mini_grep)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.28s
+     Running `target/debug/mini_grep`
+the args is not bad
