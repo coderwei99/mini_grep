@@ -6,21 +6,30 @@ pub struct Config {
     pub is_senistive: bool,
 }
 impl Config {
-    pub fn parse_args(args: &[String]) -> Result<Config, &str> {
+    pub fn parse_args(mut args: std::env::Args) -> Result<Config, &'static str> {
         if args.len() < 3 {
             return Err("the args is not bad");
         }
+        args.next();
+        let target = match args.next() {
+            Some(target) => target,
+            None => return Err("params is error"),
+        };
+        let file_path = match args.next() {
+            Some(file_path) => file_path,
+            None => return Err("params is error"),
+        };
         Ok(Config {
-            file_path: args[2].clone(),
-            target: args[1].clone(),
+            file_path,
+            target,
             is_senistive: env::var("INGORE_CASE").is_err(),
         })
     }
 }
 
 pub fn read_file_content(config: &Config) -> Result<Vec<String>, Box<dyn Error>> {
+    println!("---{}", config.target);
     let content = fs::read_to_string(&config.file_path)?;
-    println!("---{}", config.is_senistive);
 
     let ret = if config.is_senistive {
         search(&content, &config.target)
@@ -37,23 +46,19 @@ pub fn read_file_content(config: &Config) -> Result<Vec<String>, Box<dyn Error>>
 }
 
 fn search<'a>(str: &'a String, target: &str) -> Vec<&'a str> {
-    let mut ret = Vec::new();
-    for line in str.lines() {
-        if line.contains(target) {
-            ret.push(line);
-        }
-    }
-    ret
+    // let mut ret = Vec::new();
+    // for line in str.lines() {
+    //     if line.contains(target) {
+    //         ret.push(line);
+    //     }
+    // }
+    // ret
+    str.lines().filter(|str| str.contains(target)).collect()
 }
 fn ingore_search<'a>(str: &'a String, target: &str) -> Vec<&'a str> {
-    let mut ret = Vec::new();
-    let target = target.to_lowercase();
-    for line in str.lines() {
-        if line.to_lowercase().contains(&target) {
-            ret.push(line);
-        }
-    }
-    ret
+    str.lines()
+        .filter(|str| str.to_lowercase().contains(&target.to_lowercase()))
+        .collect()
 }
 
 #[test]
